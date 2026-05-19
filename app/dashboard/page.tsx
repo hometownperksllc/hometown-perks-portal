@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import QRCodeBlock from "./QRCodeBlock";
 
 export default function DashboardPage() {
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("slug");
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
@@ -166,24 +163,18 @@ export default function DashboardPage() {
 
       setRequestsUsed(used || 0);
 
-      let query = supabase
-        .from("connect_plate_setups")
-        .select("*")
-        .eq("user_id", user.id)
-        .limit(1);
-
-      if (slug) {
-        query = query.eq("slug", slug);
-      }
-
-      const { data: plates } = await query;
+const { data: plates } = await supabase
+  .from("connect_plate_setups")
+  .select("*")
+  .eq("user_id", user.id)
+  .limit(1);
       setPlateSetup(plates?.[0]);
 
       setLoading(false);
     }
 
     loadDashboard();
-  }, [slug]);
+  }, []);
 
   if (loading) {
     return <main style={pageStyle}>Loading...</main>;
