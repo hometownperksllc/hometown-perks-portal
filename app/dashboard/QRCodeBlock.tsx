@@ -5,7 +5,7 @@ import { QRCodeCanvas } from "qrcode.react";
 export default function QRCodeBlock({ slug }: { slug?: string }) {
   if (!slug) return null;
 
-const baseUrl = "https://hometown-perks-portal.vercel.app";
+const baseUrl = "https://portal.hometownperksusa.com";
 
   const url = `${baseUrl}/biz/${slug}`;
 
