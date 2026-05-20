@@ -44,7 +44,7 @@ export default function Home() {
         <div style={{ display: "flex", gap: "18px" }}>
           <a href="#how" style={{ color: "white" }}>How It Works</a>
           <a href="#plans" style={{ color: "white" }}>Plans</a>
-          <a href="#contact" style={{ color: "white" }}>Join</a>
+<a href="/signup" style={{ color: "white" }}>Join</a>
         </div>
       </section>
 
@@ -90,9 +90,9 @@ export default function Home() {
                   <li key={feature} style={{ marginBottom: "10px" }}>{feature}</li>
                 ))}
               </ul>
-              <a href="#contact" style={{ display: "inline-block", marginTop: "18px", background: "#facc15", color: "#111827", padding: "12px 18px", borderRadius: "10px", fontWeight: "bold", textDecoration: "none" }}>
-                Become a Partner
-              </a>
+<a href="/signup" style={{ display: "inline-block", marginTop: "18px", background: "#facc15", color: "#111827", padding: "12px 18px", borderRadius: "10px", fontWeight: "bold", textDecoration: "none" }}>
+  Become a Partner
+</a>
             </div>
           ))}
         </div>
