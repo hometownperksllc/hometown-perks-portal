@@ -129,7 +129,7 @@ export default function DashboardPage() {
         <button
           onClick={logout}
           style={{
-            background: "linear-gradient(90deg,#19c2ff,#38f2c2)",
+            background: "linear-gradient(90deg,#2563eb,#3b82f6)",
             border: "none",
             color: "#02133b",
             padding: "14px 28px",
@@ -167,7 +167,7 @@ export default function DashboardPage() {
           <div style={{ flex: 1, minWidth: "280px" }}>
             <div
               style={{
-                color: "#38f2c2",
+                color: "#60a5fa",
                 fontSize: "15px",
                 marginBottom: "14px",
                 textTransform: "uppercase",
@@ -204,7 +204,7 @@ export default function DashboardPage() {
             style={{
               minWidth: "260px",
               background:
-                "linear-gradient(135deg,#19c2ff 0%, #38f2c2 100%)",
+              "linear-gradient(135deg,#1e3a8a 0%, #2563eb 100%)",
               borderRadius: "24px",
               padding: "28px",
               color: "#02133b",
