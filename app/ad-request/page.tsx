@@ -170,68 +170,111 @@ export default function AdRequestPage() {
             />
           </div>
 
-          <div>
-            <label style={labelStyle}>Upload Images or Logos</label>
+<div>
+  <label style={labelStyle}>Upload Images or Videos</label>
 
-<input
-  type="file"
-  multiple
-  accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4"
-  onChange={(e) => {
-    const selectedFiles = e.target.files;
+  <label
+    htmlFor="file-upload"
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "12px",
+      width: "100%",
+      padding: "22px",
+      borderRadius: "20px",
+      border: "2px dashed rgba(96,165,250,0.45)",
+      background: "rgba(255,255,255,0.04)",
+      cursor: "pointer",
+      transition: "0.2s ease",
+      color: "#dbeafe",
+      fontWeight: 600,
+      fontSize: "16px",
+    }}
+  >
+    📁 Click to Upload Files
+  </label>
 
-    if (!selectedFiles) return;
+  <input
+    id="file-upload"
+    type="file"
+    multiple
+    accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4"
+    onChange={(e) => {
+      const selectedFiles = e.target.files;
 
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/bmp",
-      "video/mp4",
-    ];
+      if (!selectedFiles) return;
 
-    const validFiles = Array.from(selectedFiles).filter((file) =>
-      allowedTypes.includes(file.type)
-    );
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/bmp",
+        "video/mp4",
+      ];
 
-    if (validFiles.length !== selectedFiles.length) {
-      alert(
-        "Only JPG, PNG, GIF, BMP images and MP4 videos are allowed."
+      const validFiles = Array.from(selectedFiles).filter((file) =>
+        allowedTypes.includes(file.type)
       );
-    }
 
-    const dataTransfer = new DataTransfer();
+      if (validFiles.length !== selectedFiles.length) {
+        alert(
+          "Only JPG, PNG, GIF, BMP images and MP4 videos are allowed."
+        );
+      }
 
-    validFiles.forEach((file) => {
-      dataTransfer.items.add(file);
-    });
+      const dataTransfer = new DataTransfer();
 
-    setFiles(dataTransfer.files);
-  }}
-  style={{
-    color: "white",
-    marginTop: "12px",
-    width: "100%",
-    background: "rgba(255,255,255,0.04)",
-    padding: "18px",
-    borderRadius: "18px",
-    border: "1px solid rgba(255,255,255,0.08)",
-  }}
-/>
+      validFiles.forEach((file) => {
+        dataTransfer.items.add(file);
+      });
 
-<p
-  style={{
-    color: "#93c5fd",
-    fontSize: "14px",
-    marginTop: "10px",
-    opacity: 0.85,
-    lineHeight: 1.5,
-  }}
->
-  Supported files: JPG, PNG, GIF, BMP images and MP4 videos.
-  Multiple uploads are allowed.
-</p>
-          </div>
+      setFiles(dataTransfer.files);
+    }}
+    style={{
+      display: "none",
+    }}
+  />
+
+  {files && files.length > 0 && (
+    <div
+      style={{
+        marginTop: "16px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+      }}
+    >
+      {Array.from(files).map((file, index) => (
+        <div
+          key={index}
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            padding: "12px 16px",
+            borderRadius: "14px",
+            color: "#c7d2fe",
+            fontSize: "14px",
+          }}
+        >
+          ✅ {file.name}
+        </div>
+      ))}
+    </div>
+  )}
+
+  <p
+    style={{
+      color: "#93c5fd",
+      fontSize: "14px",
+      marginTop: "14px",
+      opacity: 0.85,
+      lineHeight: 1.5,
+    }}
+  >
+    Supported files: JPG, PNG, GIF, BMP images and MP4 videos.
+    Multiple uploads are allowed.
+  </p>
+</div>
 
           <div>
             <label style={labelStyle}>Advertisement Instructions</label>
