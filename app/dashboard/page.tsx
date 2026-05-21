@@ -413,21 +413,33 @@ export default function DashboardPage() {
               gap: "16px",
             }}
           >
-            <button style={buttonStyle}>
-              Submit New Ad Request
-            </button>
+<button
+  style={buttonStyle}
+  onClick={() => (window.location.href = "/ad-request")}
+>
+  Submit New Ad Request
+</button>
 
-            <button style={buttonStyle}>
-              Edit Connect Plate
-            </button>
+<button
+  style={buttonStyle}
+  onClick={() => (window.location.href = "/edit-connect-plate")}
+>
+  Edit Connect Plate
+</button>
 
-            <button style={buttonStyle}>
-              View Analytics
-            </button>
+<button
+  style={buttonStyle}
+  onClick={() => (window.location.href = "/analytics")}
+>
+  View Analytics
+</button>
 
-            <button style={buttonStyle}>
-              Upgrade Plan
-            </button>
+<button
+  style={buttonStyle}
+  onClick={() => (window.location.href = "/upgrade")}
+>
+  Upgrade Plan
+</button>
           </div>
         </div>
       </div>
