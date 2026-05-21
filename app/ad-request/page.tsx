@@ -1,298 +1,199 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function AdRequestPage() {
-  const [form, setForm] = useState({
-    business_name: "",
-    promotion_title: "",
-    promotion_details: "",
-    preferred_wording: "",
-    start_date: "",
-    end_date: "",
-    images_notes: "",
-  });
+  const [businessName, setBusinessName] = useState("");
+  const [adType, setAdType] = useState("");
+  const [notes, setNotes] = useState("");
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [message, setMessage] = useState("");
-  const [files, setFiles] = useState<FileList | null>(null);
-
-  async function handleSubmit(e: React.FormEvent) {
+  async function submitRequest(e: any) {
     e.preventDefault();
 
+    setLoading(true);
+    setStatus("");
+
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (!user) {
-      setMessage("Please log in before submitting an ad request.");
+    if (!session?.user) {
+      setStatus("You must be logged in.");
+      setLoading(false);
       return;
-    }
-
-    const currentMonth = new Date().toISOString().slice(0, 7);
-
-    const { data: merchants } = await supabase
-      .from("merchants")
-      .select("plan")
-      .eq("user_id", user.id)
-      .limit(1);
-
-    const plan = merchants?.[0]?.plan || "";
-
-    const monthlyLimit =
-      plan === "premier" || plan === "Founding Premier Partner" ? 3 : 1;
-
-    const { data: existingRequests } = await supabase
-      .from("ad_requests")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("request_month", currentMonth)
-      .eq("is_extra_paid", false);
-
-    const usedRequests = existingRequests?.length || 0;
-
-    if (usedRequests >= monthlyLimit) {
-      setMessage(
-        `You have used your included ${monthlyLimit} ad request(s) for this month. Additional requests require a paid add-on.`
-      );
-      return;
-    }
-
-    let uploadedUrls: string[] = [];
-
-    if (files && files.length > 0) {
-      for (const file of Array.from(files)) {
-        const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-        const filePath = `${user.id}/${Date.now()}-${safeFileName}`;
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("ad-request-files")
-          .upload(filePath, file);
-
-        console.log("UPLOAD RESULT:", uploadData);
-        console.log("UPLOAD ERROR:", uploadError);
-
-        if (uploadError) {
-          console.error(uploadError);
-          setMessage(`File upload failed: ${uploadError.message}`);
-          return;
-        }
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("ad-request-files").getPublicUrl(filePath);
-
-        uploadedUrls.push(publicUrl);
-      }
     }
 
     const { error } = await supabase.from("ad_requests").insert([
       {
-        user_id: user.id,
-        business_name: form.business_name,
-        promotion_title: form.promotion_title,
-        promotion_details: form.promotion_details,
-        preferred_wording: form.preferred_wording,
-        start_date: form.start_date || null,
-        end_date: form.end_date || null,
-        images_notes: form.images_notes,
-        request_month: currentMonth,
-        is_extra_paid: false,
-        uploaded_files: uploadedUrls,
+        business_name: businessName,
+        ad_type: adType,
+        notes: notes,
+        email: session.user.email,
+        status: "Submitted",
       },
     ]);
 
     if (error) {
-      console.error(error);
-      setMessage(`Something went wrong: ${error.message}`);
+      setStatus(error.message);
     } else {
-      setMessage("Ad request submitted successfully!");
-      setFiles(null);
-      setForm({
-        business_name: "",
-        promotion_title: "",
-        promotion_details: "",
-        preferred_wording: "",
-        start_date: "",
-        end_date: "",
-        images_notes: "",
-      });
+      setStatus("Ad request submitted successfully.");
+      setBusinessName("");
+      setAdType("");
+      setNotes("");
     }
+
+    setLoading(false);
   }
 
   return (
-    <main style={pageStyle}>
-      <div style={cardStyle}>
-        <h1>Submit Ad Request</h1>
+    <main
+      style={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg,#020617 0%,#071a52 45%,#0b1f66 100%)",
+        padding: "40px",
+        color: "white",
+        fontFamily: "Arial",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "850px",
+          margin: "0 auto",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "30px",
+          padding: "40px",
+          border: "1px solid rgba(255,255,255,0.08)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <div
+          style={{
+            color: "#60a5fa",
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            fontWeight: 700,
+            marginBottom: "10px",
+          }}
+        >
+          Merchant Portal
+        </div>
 
-        <p style={{ color: "#cbd5e1" }}>
-          Tell us what you want promoted. We’ll design the ad and move it through
-          the approval timeline.
+        <h1
+          style={{
+            fontSize: "54px",
+            marginTop: 0,
+            marginBottom: "10px",
+          }}
+        >
+          Submit Ad Request
+        </h1>
+
+        <p
+          style={{
+            color: "#c7d2fe",
+            marginBottom: "40px",
+            fontSize: "18px",
+          }}
+        >
+          Send your next advertising request to the Hometown Perks design team.
         </p>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={submitRequest}
           style={{
-            display: "grid",
-            gap: "16px",
-            marginTop: "24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px",
           }}
         >
           <input
             placeholder="Business Name"
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+            required
             style={inputStyle}
-            value={form.business_name}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                business_name: e.target.value,
-              })
-            }
           />
 
-          <input
-            placeholder="Promotion Title"
+          <select
+            value={adType}
+            onChange={(e) => setAdType(e.target.value)}
+            required
             style={inputStyle}
-            value={form.promotion_title}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                promotion_title: e.target.value,
-              })
-            }
-          />
+          >
+            <option value="">Select Ad Type</option>
+            <option value="TV Ad">TV Ad</option>
+            <option value="Social Media Graphic">Social Media Graphic</option>
+            <option value="Connect Plate Update">
+              Connect Plate Update
+            </option>
+            <option value="Website Promotion">
+              Website Promotion
+            </option>
+          </select>
 
           <textarea
-            placeholder="Promotion Details"
-            rows={5}
-            style={inputStyle}
-            value={form.promotion_details}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                promotion_details: e.target.value,
-              })
-            }
-          />
-
-          <textarea
-            placeholder="Preferred Wording"
-            rows={4}
-            style={inputStyle}
-            value={form.preferred_wording}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                preferred_wording: e.target.value,
-              })
-            }
-          />
-
-          <input
-            type="date"
-            style={inputStyle}
-            value={form.start_date}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                start_date: e.target.value,
-              })
-            }
-          />
-
-          <input
-            type="date"
-            style={inputStyle}
-            value={form.end_date}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                end_date: e.target.value,
-              })
-            }
-          />
-
-          <textarea
-            placeholder="Image/Product Notes"
-            rows={4}
-            style={inputStyle}
-            value={form.images_notes}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                images_notes: e.target.value,
-              })
-            }
-          />
-
-          <div>
-            <strong>Upload Images or Logos</strong>
-
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => setFiles(e.target.files)}
-              style={{
-                marginTop: "12px",
-                color: "white",
-              }}
-            />
-          </div>
-
-          <button type="submit" style={buttonStyle}>
-            Submit Ad Request
-          </button>
-        </form>
-
-        {message && (
-          <p
+            placeholder="Describe what you want included in the advertisement..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={8}
             style={{
-              marginTop: "20px",
-              color: "#facc15",
+              ...inputStyle,
+              resize: "vertical",
+            }}
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              background:
+                "linear-gradient(135deg,#2563eb 0%,#3b82f6 100%)",
+              border: "none",
+              color: "white",
+              padding: "18px",
+              borderRadius: "18px",
+              fontWeight: 700,
+              cursor: "pointer",
+              fontSize: "18px",
+              boxShadow: "0 12px 30px rgba(37,99,235,.35)",
             }}
           >
-            {message}
-          </p>
-        )}
+            {loading ? "Submitting..." : "Submit Request"}
+          </button>
+
+          {status && (
+            <div
+              style={{
+                marginTop: "10px",
+                color: "#93c5fd",
+                fontWeight: 600,
+              }}
+            >
+              {status}
+            </div>
+          )}
+        </form>
       </div>
     </main>
   );
 }
 
-const pageStyle = {
-  minHeight: "100vh",
-  background: "#020b2d",
-  color: "white",
-  padding: "40px",
-  fontFamily: "Arial",
-};
-
-const cardStyle = {
-  maxWidth: "760px",
-  margin: "0 auto",
-  background: "#1e293b",
-  padding: "32px",
-  borderRadius: "24px",
-};
-
 const inputStyle = {
   width: "100%",
-  padding: "14px",
-  borderRadius: "12px",
-  border: "1px solid #334155",
-  background: "#0f172a",
+  padding: "18px",
+  borderRadius: "18px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.05)",
   color: "white",
   fontSize: "16px",
-};
-
-const buttonStyle = {
-  background: "#facc15",
-  color: "black",
-  border: "none",
-  padding: "16px",
-  borderRadius: "12px",
-  fontWeight: "bold" as const,
-  fontSize: "16px",
-  cursor: "pointer",
+  outline: "none",
 };
