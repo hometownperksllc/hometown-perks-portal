@@ -18,59 +18,48 @@ export default function SignupPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSignup(e: any) {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+async function handleSignup(e: any) {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    const { data, error } = await supabase.auth.signUp({
+  const response = await fetch("/api/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      businessName,
+      contactName,
+      phone,
       email,
       password,
-    });
+      plan,
+    }),
+  });
 
-    if (error) {
-      setMessage(error.message);
-      setLoading(false);
-      return;
-    }
+  const result = await response.json();
 
-    const userId = data.user?.id;
-
-    if (!userId) {
-      setMessage("Account created. Please check your email to confirm your account.");
-      setLoading(false);
-      return;
-    }
-
-    const { error: merchantError } = await supabase.from("merchants").insert([
-      {
-        user_id: userId,
-        business_name: businessName,
-        contact_name: contactName,
-        phone,
-        email,
-        plan,
-        onboarding_status: "New",
-      },
-    ]);
-
-    if (merchantError) {
-      setMessage(merchantError.message);
-    } else {
-      setMessage("Account created successfully.");
-      setBusinessName("");
-      setContactName("");
-      setPhone("");
-      setEmail("");
-      setPassword("");
-
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 1000);
-    }
-
+  if (!response.ok) {
+    setMessage(result.error || "Signup failed.");
     setLoading(false);
+    return;
   }
+
+  setMessage("Account created successfully.");
+
+  setBusinessName("");
+  setContactName("");
+  setPhone("");
+  setEmail("");
+  setPassword("");
+
+  setTimeout(() => {
+    window.location.href = "/dashboard";
+  }, 1000);
+
+  setLoading(false);
+}
 
   return (
     <main style={pageStyle}>

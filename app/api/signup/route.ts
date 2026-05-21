@@ -5,7 +5,14 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { businessName, contactName, phone, email, password } = body;
+    const {
+      businessName,
+      contactName,
+      phone,
+      email,
+      password,
+      plan,
+    } = body;
 
     if (!businessName || !contactName || !phone || !email || !password) {
       return NextResponse.json(
@@ -13,6 +20,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const selectedPlan = plan || "Founding Community Partner";
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -34,7 +43,7 @@ export async function POST(request: Request) {
             phone,
             email,
             onboarding_status: "Active",
-            plan: "Starter",
+            plan: selectedPlan,
           },
         ]);
 
