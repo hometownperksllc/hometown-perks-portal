@@ -17,7 +17,10 @@ export default function DashboardPage() {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (!session?.user) return;
+      if (!session?.user) {
+        window.location.href = "/login";
+        return;
+      }
 
       const { data } = await supabase
         .from("merchants")
@@ -45,12 +48,12 @@ export default function DashboardPage() {
     {
       label: "Remaining Ads",
       value: "1",
-      color: "#2563eb",
+      color: "#60a5fa",
     },
     {
       label: "Approved Ads",
       value: "0",
-      color: "#60a5fa",
+      color: "#2563eb",
     },
     {
       label: "Active Campaigns",
@@ -65,12 +68,12 @@ export default function DashboardPage() {
     {
       label: "Website Clicks",
       value: "0",
-      color: "#2563eb",
+      color: "#60a5fa",
     },
     {
       label: "Facebook Clicks",
       value: "0",
-      color: "#60a5fa",
+      color: "#2563eb",
     },
     {
       label: "Instagram Clicks",
@@ -84,7 +87,7 @@ export default function DashboardPage() {
       style={{
         minHeight: "100vh",
         background:
-          "linear-gradient(135deg, #020b3d 0%, #031b69 45%, #062b8f 100%)",
+          "linear-gradient(135deg, #020617 0%, #071a52 45%, #0b1f66 100%)",
         padding: "40px",
         color: "white",
         fontFamily: "Arial",
@@ -104,11 +107,12 @@ export default function DashboardPage() {
         <div>
           <div
             style={{
-              color: "#2563eb",
+              color: "#60a5fa",
               fontSize: "14px",
               marginBottom: "8px",
               letterSpacing: "2px",
               textTransform: "uppercase",
+              fontWeight: 700,
             }}
           >
             Merchant Dashboard
@@ -116,10 +120,11 @@ export default function DashboardPage() {
 
           <h1
             style={{
-              fontSize: "64px",
+              fontSize: "72px",
               lineHeight: "1",
               margin: 0,
-              fontWeight: 700,
+              fontWeight: 800,
+              letterSpacing: "-2px",
             }}
           >
             Hometown Perks
@@ -129,15 +134,15 @@ export default function DashboardPage() {
         <button
           onClick={logout}
           style={{
-            background: "linear-gradient(90deg,#1e3a8a,#2563eb)",
+            background: "linear-gradient(90deg,#2563eb,#3b82f6)",
             border: "none",
-            color: "#02133b",
+            color: "white",
             padding: "14px 28px",
-            borderRadius: "14px",
+            borderRadius: "16px",
             fontWeight: 700,
             cursor: "pointer",
             fontSize: "16px",
-            boxShadow: "0 0 20px rgba(56,242,194,.25)",
+            boxShadow: "0 8px 30px rgba(37,99,235,.35)",
           }}
         >
           Log Out
@@ -147,9 +152,9 @@ export default function DashboardPage() {
       {/* HERO CARD */}
       <div
         style={{
-          background: "rgba(255,255,255,0.06)",
+          background: "rgba(255,255,255,0.05)",
           border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "28px",
+          borderRadius: "30px",
           padding: "40px",
           marginBottom: "40px",
           backdropFilter: "blur(12px)",
@@ -168,10 +173,11 @@ export default function DashboardPage() {
             <div
               style={{
                 color: "#60a5fa",
-                fontSize: "15px",
-                marginBottom: "14px",
+                fontSize: "14px",
+                marginBottom: "12px",
                 textTransform: "uppercase",
-                letterSpacing: "1px",
+                letterSpacing: "2px",
+                fontWeight: 700,
               }}
             >
               Welcome Back
@@ -179,9 +185,10 @@ export default function DashboardPage() {
 
             <h2
               style={{
-                fontSize: "42px",
+                fontSize: "48px",
                 marginTop: 0,
                 marginBottom: "14px",
+                fontWeight: 700,
               }}
             >
               {merchant?.business_name || "Business Dashboard"}
@@ -189,7 +196,7 @@ export default function DashboardPage() {
 
             <p
               style={{
-                color: "#c5d4ff",
+                color: "#c7d2fe",
                 fontSize: "18px",
                 lineHeight: "1.7",
                 maxWidth: "700px",
@@ -200,24 +207,26 @@ export default function DashboardPage() {
             </p>
           </div>
 
+          {/* CURRENT PLAN */}
           <div
             style={{
-              minWidth: "260px",
+              minWidth: "320px",
               background:
-              "linear-gradient(135deg,#142c6e 0%, #1d4ed8 100%)",
-              borderRadius: "24px",
-              padding: "28px",
-              color: "#02133b",
+                "linear-gradient(135deg,#2563eb 0%, #3b82f6 100%)",
+              borderRadius: "28px",
+              padding: "32px",
+              color: "white",
               fontWeight: 700,
-              boxShadow: "0 15px 35px rgba(25,194,255,.25)",
+              boxShadow: "0 20px 45px rgba(37,99,235,.35)",
             }}
           >
             <div
               style={{
                 fontSize: "14px",
-                opacity: 0.8,
-                marginBottom: "8px",
+                opacity: 0.9,
+                marginBottom: "10px",
                 textTransform: "uppercase",
+                letterSpacing: "2px",
               }}
             >
               Current Plan
@@ -225,14 +234,21 @@ export default function DashboardPage() {
 
             <div
               style={{
-                fontSize: "34px",
-                marginBottom: "12px",
+                fontSize: "42px",
+                marginBottom: "14px",
+                lineHeight: "1.1",
               }}
             >
               Founding Partner
             </div>
 
-            <div style={{ fontSize: "17px", lineHeight: "1.6" }}>
+            <div
+              style={{
+                fontSize: "17px",
+                lineHeight: "1.7",
+                color: "rgba(255,255,255,.92)",
+              }}
+            >
               Early access business partner with dashboard tools and Connect
               Plate analytics.
             </div>
@@ -244,7 +260,7 @@ export default function DashboardPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))",
+          gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
           gap: "22px",
           marginBottom: "40px",
         }}
@@ -253,14 +269,14 @@ export default function DashboardPage() {
           <div
             key={index}
             style={{
-              background: "rgba(255,255,255,0.06)",
+              background: "rgba(255,255,255,0.05)",
               borderRadius: "24px",
               padding: "28px",
               border: "1px solid rgba(255,255,255,0.08)",
-              backdropFilter: "blur(10px)",
+              backdropFilter: "blur(12px)",
               position: "relative",
               overflow: "hidden",
-              boxShadow: "0 12px 30px rgba(0,0,0,.25)",
+              boxShadow: "0 12px 30px rgba(0,0,0,.22)",
             }}
           >
             <div
@@ -286,8 +302,8 @@ export default function DashboardPage() {
 
             <div
               style={{
-                fontSize: "42px",
-                fontWeight: 700,
+                fontSize: "44px",
+                fontWeight: 800,
               }}
             >
               {item.value}
@@ -307,8 +323,8 @@ export default function DashboardPage() {
         {/* ANALYTICS */}
         <div
           style={{
-            background: "rgba(255,255,255,0.06)",
-            borderRadius: "28px",
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "30px",
             padding: "35px",
             border: "1px solid rgba(255,255,255,0.08)",
             backdropFilter: "blur(10px)",
@@ -317,11 +333,12 @@ export default function DashboardPage() {
         >
           <div
             style={{
-              color: "#2563eb",
+              color: "#60a5fa",
               fontSize: "14px",
               letterSpacing: "2px",
               textTransform: "uppercase",
               marginBottom: "10px",
+              fontWeight: 700,
             }}
           >
             Growth Insights
@@ -330,8 +347,8 @@ export default function DashboardPage() {
           <h2
             style={{
               marginTop: 0,
-              fontSize: "36px",
-              marginBottom: "20px",
+              fontSize: "38px",
+              marginBottom: "22px",
             }}
           >
             Merchant Analytics
@@ -339,10 +356,10 @@ export default function DashboardPage() {
 
           <div
             style={{
-              height: "260px",
-              borderRadius: "20px",
+              height: "280px",
+              borderRadius: "24px",
               background:
-                "linear-gradient(135deg, rgba(25,194,255,.12), rgba(56,242,194,.12))",
+                "linear-gradient(135deg, rgba(59,130,246,.14), rgba(37,99,235,.08))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -358,8 +375,8 @@ export default function DashboardPage() {
         {/* QUICK ACTIONS */}
         <div
           style={{
-            background: "rgba(255,255,255,0.06)",
-            borderRadius: "28px",
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "30px",
             padding: "35px",
             border: "1px solid rgba(255,255,255,0.08)",
             backdropFilter: "blur(10px)",
@@ -368,11 +385,12 @@ export default function DashboardPage() {
         >
           <div
             style={{
-              color: "#2563eb",
+              color: "#60a5fa",
               fontSize: "14px",
               letterSpacing: "2px",
               textTransform: "uppercase",
               marginBottom: "10px",
+              fontWeight: 700,
             }}
           >
             Quick Actions
@@ -381,8 +399,8 @@ export default function DashboardPage() {
           <h2
             style={{
               marginTop: 0,
-              fontSize: "34px",
-              marginBottom: "20px",
+              fontSize: "38px",
+              marginBottom: "24px",
             }}
           >
             Tools
@@ -418,13 +436,14 @@ export default function DashboardPage() {
 }
 
 const buttonStyle = {
-  background: "linear-gradient(90deg,#1e40af,#2563eb)",
-  border: "none",
-  color: "#02133b",
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(96,165,250,.25)",
+  color: "white",
   padding: "18px",
   borderRadius: "18px",
   fontWeight: 700,
   cursor: "pointer",
   fontSize: "16px",
-  boxShadow: "0 10px 25px rgba(56,242,194,.15)",
+  backdropFilter: "blur(12px)",
+  boxShadow: "0 10px 25px rgba(0,0,0,.25)",
 };
