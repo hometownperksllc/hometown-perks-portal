@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -10,10 +10,32 @@ const supabase = createClient(
 
 export default function AdRequestPage() {
   const [businessName, setBusinessName] = useState("");
-  const [adType, setAdType] = useState("");
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState<FileList | null>(null);
+
+  useEffect(() => {
+    async function loadMerchant() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.user?.email) return;
+
+      const { data } = await supabase
+        .from("merchants")
+        .select("business_name")
+        .eq("email", session.user.email)
+        .single();
+
+      if (data?.business_name) {
+        setBusinessName(data.business_name);
+      }
+    }
+
+    loadMerchant();
+  }, []);
 
   async function submitRequest(e: any) {
     e.preventDefault();
@@ -31,13 +53,29 @@ export default function AdRequestPage() {
       return;
     }
 
+    let uploadedFiles: string[] = [];
+
+    if (files && files.length > 0) {
+      for (const file of Array.from(files)) {
+        const fileName = `${Date.now()}-${file.name}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("ad-uploads")
+          .upload(fileName, file);
+
+        if (!uploadError) {
+          uploadedFiles.push(fileName);
+        }
+      }
+    }
+
     const { error } = await supabase.from("ad_requests").insert([
       {
         business_name: businessName,
-        ad_type: adType,
         notes: notes,
         email: session.user.email,
         status: "Submitted",
+        uploaded_files: uploadedFiles,
       },
     ]);
 
@@ -45,9 +83,8 @@ export default function AdRequestPage() {
       setStatus(error.message);
     } else {
       setStatus("Ad request submitted successfully.");
-      setBusinessName("");
-      setAdType("");
       setNotes("");
+      setFiles(null);
     }
 
     setLoading(false);
@@ -66,13 +103,14 @@ export default function AdRequestPage() {
     >
       <div
         style={{
-          maxWidth: "850px",
+          maxWidth: "900px",
           margin: "0 auto",
           background: "rgba(255,255,255,0.05)",
           borderRadius: "30px",
-          padding: "40px",
+          padding: "50px",
           border: "1px solid rgba(255,255,255,0.08)",
-          backdropFilter: "blur(12px)",
+          backdropFilter: "blur(14px)",
+          boxShadow: "0 25px 80px rgba(0,0,0,.35)",
         }}
       >
         <div
@@ -81,7 +119,7 @@ export default function AdRequestPage() {
             letterSpacing: "2px",
             textTransform: "uppercase",
             fontWeight: 700,
-            marginBottom: "10px",
+            marginBottom: "12px",
           }}
         >
           Merchant Portal
@@ -89,9 +127,10 @@ export default function AdRequestPage() {
 
         <h1
           style={{
-            fontSize: "54px",
+            fontSize: "58px",
             marginTop: 0,
             marginBottom: "10px",
+            fontWeight: 800,
           }}
         >
           Submit Ad Request
@@ -102,9 +141,11 @@ export default function AdRequestPage() {
             color: "#c7d2fe",
             marginBottom: "40px",
             fontSize: "18px",
+            lineHeight: 1.6,
           }}
         >
-          Send your next advertising request to the Hometown Perks design team.
+          Upload photos, logos, specials, or information you want included in
+          your TV advertising slide.
         </p>
 
         <form
@@ -115,41 +156,48 @@ export default function AdRequestPage() {
             gap: "24px",
           }}
         >
-          <input
-            placeholder="Business Name"
-            value={businessName}
-            onChange={(e) => setBusinessName(e.target.value)}
-            required
-            style={inputStyle}
-          />
+          <div>
+            <label style={labelStyle}>Business Name</label>
 
-          <select
-            value={adType}
-            onChange={(e) => setAdType(e.target.value)}
-            required
-            style={inputStyle}
-          >
-            <option value="">Select Ad Type</option>
-            <option value="TV Ad">TV Ad</option>
-            <option value="Social Media Graphic">Social Media Graphic</option>
-            <option value="Connect Plate Update">
-              Connect Plate Update
-            </option>
-            <option value="Website Promotion">
-              Website Promotion
-            </option>
-          </select>
+            <input
+              value={businessName}
+              readOnly
+              style={{
+                ...inputStyle,
+                opacity: 0.9,
+                cursor: "not-allowed",
+              }}
+            />
+          </div>
 
-          <textarea
-            placeholder="Describe what you want included in the advertisement..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={8}
-            style={{
-              ...inputStyle,
-              resize: "vertical",
-            }}
-          />
+          <div>
+            <label style={labelStyle}>Upload Images or Logos</label>
+
+            <input
+              type="file"
+              multiple
+              onChange={(e) => setFiles(e.target.files)}
+              style={{
+                color: "white",
+                marginTop: "10px",
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Advertisement Instructions</label>
+
+            <textarea
+              placeholder="Example: Please promote our Mother’s Day flower arrangements and mention free delivery this weekend..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={8}
+              style={{
+                ...inputStyle,
+                resize: "vertical",
+              }}
+            />
+          </div>
 
           <button
             type="submit"
@@ -159,7 +207,7 @@ export default function AdRequestPage() {
                 "linear-gradient(135deg,#2563eb 0%,#3b82f6 100%)",
               border: "none",
               color: "white",
-              padding: "18px",
+              padding: "20px",
               borderRadius: "18px",
               fontWeight: 700,
               cursor: "pointer",
@@ -167,7 +215,7 @@ export default function AdRequestPage() {
               boxShadow: "0 12px 30px rgba(37,99,235,.35)",
             }}
           >
-            {loading ? "Submitting..." : "Submit Request"}
+            {loading ? "Submitting..." : "Submit Advertisement Request"}
           </button>
 
           {status && (
@@ -186,6 +234,13 @@ export default function AdRequestPage() {
     </main>
   );
 }
+
+const labelStyle = {
+  display: "block",
+  marginBottom: "10px",
+  fontWeight: 600,
+  color: "#dbeafe",
+};
 
 const inputStyle = {
   width: "100%",
