@@ -40,42 +40,42 @@ export default function DashboardPage() {
     {
       label: "Monthly Requests",
       value: "0 / 1",
-      color: "#19c2ff",
+      color: "#3b82f6",
     },
     {
       label: "Remaining Ads",
       value: "1",
-      color: "#38f2c2",
+      color: "#2563eb",
     },
     {
       label: "Approved Ads",
       value: "0",
-      color: "#00d4ff",
+      color: "#60a5fa",
     },
     {
       label: "Active Campaigns",
       value: "0",
-      color: "#00ffa3",
+      color: "#1d4ed8",
     },
     {
       label: "Total Scans",
       value: "0",
-      color: "#19c2ff",
+      color: "#3b82f6",
     },
     {
       label: "Website Clicks",
       value: "0",
-      color: "#38f2c2",
+      color: "#2563eb",
     },
     {
       label: "Facebook Clicks",
       value: "0",
-      color: "#00d4ff",
+      color: "#60a5fa",
     },
     {
       label: "Instagram Clicks",
       value: "0",
-      color: "#00ffa3",
+      color: "#1d4ed8",
     },
   ];
 
@@ -104,7 +104,7 @@ export default function DashboardPage() {
         <div>
           <div
             style={{
-              color: "#38f2c2",
+              color: "#2563eb",
               fontSize: "14px",
               marginBottom: "8px",
               letterSpacing: "2px",
@@ -129,7 +129,7 @@ export default function DashboardPage() {
         <button
           onClick={logout}
           style={{
-            background: "linear-gradient(90deg,#2563eb,#3b82f6)",
+            background: "linear-gradient(90deg,#1e3a8a,#2563eb)",
             border: "none",
             color: "#02133b",
             padding: "14px 28px",
@@ -204,7 +204,7 @@ export default function DashboardPage() {
             style={{
               minWidth: "260px",
               background:
-              "linear-gradient(135deg,#1e3a8a 0%, #2563eb 100%)",
+              "linear-gradient(135deg,#142c6e 0%, #1d4ed8 100%)",
               borderRadius: "24px",
               padding: "28px",
               color: "#02133b",
@@ -317,7 +317,7 @@ export default function DashboardPage() {
         >
           <div
             style={{
-              color: "#38f2c2",
+              color: "#2563eb",
               fontSize: "14px",
               letterSpacing: "2px",
               textTransform: "uppercase",
@@ -368,7 +368,7 @@ export default function DashboardPage() {
         >
           <div
             style={{
-              color: "#38f2c2",
+              color: "#2563eb",
               fontSize: "14px",
               letterSpacing: "2px",
               textTransform: "uppercase",
@@ -418,7 +418,7 @@ export default function DashboardPage() {
 }
 
 const buttonStyle = {
-  background: "linear-gradient(90deg,#19c2ff,#38f2c2)",
+  background: "linear-gradient(90deg,#1e40af,#2563eb)",
   border: "none",
   color: "#02133b",
   padding: "18px",
