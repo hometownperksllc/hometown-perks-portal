@@ -200,40 +200,43 @@ export default function AdRequestPage() {
     type="file"
     multiple
     accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4"
-    onChange={(e) => {
-      const selectedFiles = e.target.files;
+onChange={(e) => {
+  const selectedFiles = e.target.files;
 
-      if (!selectedFiles) return;
+  if (!selectedFiles) return;
 
-      const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/bmp",
-        "video/mp4",
-      ];
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/bmp",
+    "video/mp4",
+  ];
 
-      const validFiles = Array.from(selectedFiles).filter((file) =>
-        allowedTypes.includes(file.type)
-      );
+  const validFiles = Array.from(selectedFiles).filter((file) =>
+    allowedTypes.includes(file.type)
+  );
 
-      if (validFiles.length !== selectedFiles.length) {
-        alert(
-          "Only JPG, PNG, GIF, BMP images and MP4 videos are allowed."
-        );
-      }
+  if (validFiles.length !== selectedFiles.length) {
+    alert("Only JPG, PNG, GIF, BMP images and MP4 videos are allowed.");
+  }
 
-      const dataTransfer = new DataTransfer();
+  const dataTransfer = new DataTransfer();
 
-      validFiles.forEach((file) => {
-        dataTransfer.items.add(file);
-      });
+  if (files) {
+    Array.from(files).forEach((file) => {
+      dataTransfer.items.add(file);
+    });
+  }
 
-      setFiles(dataTransfer.files);
-    }}
-    style={{
-      display: "none",
-    }}
+  validFiles.forEach((file) => {
+    dataTransfer.items.add(file);
+  });
+
+  setFiles(dataTransfer.files);
+
+  e.target.value = "";
+}}
   />
 
   {files && files.length > 0 && (
