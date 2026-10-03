@@ -1,62 +1,14 @@
-import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
-
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-
-    const {
-      businessName,
-      contactName,
-      phone,
-      email,
-      password,
-      plan,
-    } = body;
-
-    if (!businessName || !contactName || !phone || !email || !password) {
-      return NextResponse.json(
-        { error: "Missing signup fields." },
-        { status: 400 }
-      );
-    }
-
-    const selectedPlan = plan || "Founding Community Partner";
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-
-    if (data.user) {
-      const { error: merchantError } = await supabase
-        .from("merchants")
-        .insert([
-          {
-            user_id: data.user.id,
-            business_name: businessName,
-            contact_name: contactName,
-            phone,
-            email,
-            onboarding_status: "Active",
-            plan: selectedPlan,
-          },
-        ]);
-
-      if (merchantError) {
-        return NextResponse.json(
-          { error: merchantError.message },
-          { status: 400 }
-        );
-      }
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+import {createClient} from '@supabase/supabase-js';
+import {launchReady,settings,billingOrigin} from '@/lib/billing/server';
+export async function POST(request:Request) {
+ try {
+ if(process.env.PAID_ENROLLMENT_ENABLED!=='true') return Response.json({error:'Paid enrollment is not open yet.'},{status:403});
+ if(!launchReady(await settings())) return Response.json({error:'Paid enrollment is not open yet.'},{status:403});
+ const {email,password}=await request.json();
+ if(typeof email!=='string' || email.length>254 || typeof password!=='string' || password.length<12 || password.length>128) return Response.json({error:'Enter a valid email and a password of at least 12 characters.'},{status:400});
+ const auth=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{auth:{persistSession:false}});
+ const {error}=await auth.auth.signUp({email,password,options:{emailRedirectTo:billingOrigin()+'/enroll'}});
+ if(error) return Response.json({error:'Account signup could not be completed. Try signing in or resetting your password.'},{status:400});
+ return Response.json({success:true,message:'Check your email to confirm your account, then sign in.'});
+ } catch {return Response.json({error:'Enrollment is not available.'},{status:503});}
 }
