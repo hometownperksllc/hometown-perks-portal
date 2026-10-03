@@ -20,7 +20,7 @@ test('webhook failure logs only stage and status, and keeps payment lookup failu
  console.error=(...args)=>logs.push(args);
  let lookups=0;
  try {
-  const {POST}=load('app/api/square/webhook/route.ts',{'@/lib/billing/signature':{verifySignature},'@/lib/billing/synchronize':{},'@/lib/billing/cancellation':{},'@/lib/billing/server':{square(){return {payments:{async get(){lookups++;throw Object.assign(new Error('PRIVATE SDK BODY AND TOKEN'),{statusCode:404,body:{secret:'DO NOT LOG'}});}}};}}});
+  const {POST}=load('app/api/square/webhook/route.ts',{'@/lib/billing/signature':{verifySignature},'@/lib/billing/synchronize':{},'@/lib/billing/refund-state':{},'@/lib/billing/server':{square(){return {payments:{async get(){lookups++;throw Object.assign(new Error('PRIVATE SDK BODY AND TOKEN'),{statusCode:404,body:{secret:'DO NOT LOG'}});}}};}}});
   const payload=JSON.stringify({type:'payment.created',data:{object:{payment:{id:'fake-payment'}}}});
   const signed=crypto.createHmac('sha256',key).update(url+payload).digest('base64');
   const response=await POST(new Request(url,{method:'POST',body:payload,headers:{'x-square-hmacsha256-signature':signed}}));

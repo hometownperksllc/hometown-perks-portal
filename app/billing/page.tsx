@@ -6,10 +6,10 @@ type Billing={card_last_four?:string;card_brand?:string;consent_at?:string;live_
 type Config={enabled:boolean;enrollment?:{status:string};billing?:Billing;applicationId?:string;locationId?:string;environment?:string;consentText?:string;consentVersion?:string};
 type Card=Awaited<ReturnType<ReturnType<NonNullable<Window['Square']>['payments']>['card']>>;
 export default function BillingPage(){
- const [config,setConfig]=useState<Config|null>(null),[message,setMessage]=useState(''),[ready,setReady]=useState(false),[accepted,setAccepted]=useState(false),[busy,setBusy]=useState(false);
+ const [config,setConfig]=useState<Config|null>(null),[message,setMessage]=useState(''),[ready,setReady]=useState(false),[accepted,setAccepted]=useState(false),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true);
  const card=useRef<Card|null>(null);
  async function refresh(){const {data:{session}}=await supabase.auth.getSession();if(!session){setMessage('Sign in to view billing.');return;}const r=await fetch('/api/billing/config',{headers:{Authorization:`Bearer ${session.access_token}`}});const d=await r.json();if(!r.ok){setMessage(d.error);return;}setConfig(d);}
- useEffect(()=>{supabase.auth.getSession().then(async ({data:{session}})=>{if(!session){setMessage('Sign in to view billing.');return;}const r=await fetch('/api/billing/config',{headers:{Authorization:`Bearer ${session.access_token}`}});const d=await r.json();if(r.ok)setConfig(d);else setMessage(d.error);}).catch(()=>setMessage('Billing details unavailable.'));},[]);
+ useEffect(()=>{supabase.auth.getSession().then(async ({data:{session}})=>{if(!session){setMessage('Sign in to view billing.');return;}const r=await fetch('/api/billing/config',{headers:{Authorization:`Bearer ${session.access_token}`}});const d=await r.json();if(r.ok)setConfig(d);else setMessage(d.error);}).catch(()=>setMessage('Billing details unavailable.')).finally(()=>setLoading(false));},[]);
  useEffect(()=>{
   if(!ready || !config?.enabled || !config.applicationId || !config.locationId || config.billing?.card_last_four || config.billing?.cancellation_requested_at || config.enrollment?.status!=='paid_pending_launch')return;
   let disposed=false,instance:Card|null=null;
@@ -31,7 +31,7 @@ export default function BillingPage(){
  const billing=config?.billing;
  return <main className="min-h-screen bg-slate-950 text-white p-6"><div className="max-w-2xl mx-auto py-10"><a className="text-blue-300" href="/dashboard">Merchant Dashboard</a><h1 className="text-3xl font-bold my-6">Advertising Billing</h1>
  {message&&<p role="status" className="my-5">{message}</p>}
- {!config?<p>Checking billing…</p>:!config.enrollment?<p>No paid advertising enrollment is linked to this account.</p>:<><p>Status: {config.enrollment.status.replaceAll('_',' ')}</p><p className="my-4">Your initial $149 covers 30 calendar days beginning when your approved advertisement goes live. Monthly renewal is $149 with your separate authorization.</p>
+ {!config?<p>{loading?'Checking billing…':'Sign in to view your advertising account.'} {!loading&&<a className="text-blue-300" href="/login">Sign in</a>}</p>:!config.enrollment?<p>No paid advertising enrollment is linked to this account.</p>:<><p>Status: {config.enrollment.status.replaceAll('_',' ')}</p><p className="my-4">Your initial $149 covers 30 calendar days beginning when your approved advertisement goes live. Monthly renewal is $149 with your separate authorization.</p>
  {billing?.live_date&&<p>Advertising began: {billing.live_date}</p>}{billing?.renewal_start_date&&<p>First monthly renewal date: {billing.renewal_start_date}</p>}{billing?.paid_through&&<p>Current recorded paid period ends: {billing.paid_through}</p>}
  {billing?.card_last_four&&<p className="my-4">Payment method: {billing.card_brand} ending {billing.card_last_four}</p>}
  {billing?.cancellation_requested_at?<p className="my-4">Renewal cancellation requested. {billing.cancellation_confirmed_at?'Confirmed with Square.':'Awaiting any outstanding provider confirmation.'}</p>:<>
