@@ -14,6 +14,7 @@ export async function POST(request:Request) {
  if(readError) throw readError;
  if(existing && existing.status!=='awaiting_payment') return Response.json({error:'Your enrollment already has a payment. Check its status.'},{status:409});
  if(existing && existing.square_environment!==squareEnvironment()) return Response.json({error:'Enrollment environment has changed. Contact support.'},{status:409});
+ if(existing && (existing.terms_version!==config.terms_version || existing.terms_text!==config.terms_text || existing.launch_deadline!==config.launch_deadline || JSON.stringify(existing.confirmed_locations)!==JSON.stringify(config.confirmed_locations) || existing.amount_cents!==config.amount_cents)) return Response.json({error:'Your reservation terms have changed. Contact support before paying.'},{status:409});
  if(existing?.checkout_url) return Response.json({url:existing.checkout_url});
  const {data:merchant,error:merchantError}=await db.from('merchants').upsert({user_id:user.id,email:user.email,business_name:body.businessName.trim(),contact_name:body.contactName.trim(),phone:body.phone.trim(),plan:'Founding Advertiser',onboarding_status:'Awaiting Payment'},{onConflict:'user_id'}).select('id').single();
  if(merchantError) throw merchantError;

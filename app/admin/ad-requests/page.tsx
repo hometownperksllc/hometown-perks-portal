@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { signedFiles } from "@/lib/ad-files";
 
 const statuses = [
   "Request Submitted",
@@ -18,27 +19,28 @@ export default function AdminAdRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
 
+  async function saveRequest(id: string, updates: Record<string, string>) {
+    const {data:{session}}=await supabase.auth.getSession();
+    if (!session) { window.location.assign('/login'); return; }
+    const response=await fetch('/api/admin/ad-requests', {method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({id,...updates})});
+    if(!response.ok) alert('Unable to update the ad request.');
+  }
   async function loadRequests() {
     const { data } = await supabase
       .from("ad_requests")
       .select("*")
       .order("created_at", { ascending: false });
 
-    setRequests(data || []);
+    setRequests(await signedFiles(data || []));
   }
 
   async function updateStatus(id: string, status: string) {
-    await supabase.from("ad_requests").update({ status }).eq("id", id);
+    await saveRequest(id, { status });
     loadRequests();
   }
 
   async function updateAdminNote(id: string) {
-    await supabase
-      .from("ad_requests")
-      .update({
-        admin_notes: notes[id],
-      })
-      .eq("id", id);
+    await saveRequest(id, { admin_notes: notes[id] });
 
     loadRequests();
   }
@@ -51,7 +53,9 @@ export default function AdminAdRequestsPage() {
 
     if (!file) return;
 
-    const filePath = `${requestId}-${Date.now()}-${file.name}`;
+    const owner = requests.find(r => r.id === requestId)?.user_id;
+    if (!owner) return;
+    const filePath = `${owner}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
     const { error: uploadError } = await supabase.storage
       .from("ad-previews")
@@ -62,47 +66,7 @@ export default function AdminAdRequestsPage() {
       return;
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("ad-previews").getPublicUrl(filePath);
-
-    await supabase
-      .from("ad_requests")
-      .update({
-        preview_url: publicUrl,
-        status: "Ready for Review",
-      })
-      .eq("id", requestId);
-
-    const request = requests.find((r) => r.id === requestId);
-
-    const { data: merchantData } = await supabase
-      .from("merchants")
-      .select("email")
-      .eq("user_id", request?.user_id)
-      .limit(1);
-
-    const merchantEmail = merchantData?.[0]?.email;
-
-    if (merchantEmail) {
-      await fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: merchantEmail,
-          subject: "Your Hometown Perks Ad Preview Is Ready",
-          message: `
-            Your advertisement preview is now ready for review.
-
-            Please log in to your merchant dashboard to approve the design or request changes.
-
-            Thank you for using Hometown Perks.
-          `,
-        }),
-      });
-    }
+    await saveRequest(requestId, { preview_url: filePath, status: 'Ready for Review' });
 
     loadRequests();
   }

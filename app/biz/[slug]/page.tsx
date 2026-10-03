@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { database } from "@/lib/billing/server";
 import LinkTracker from "./LinkTracker";
 
 export default async function BusinessPage({
@@ -8,9 +8,9 @@ export default async function BusinessPage({
 }) {
   const { slug } = await params;
 
-  const { data: business } = await supabase
+  const { data: business } = await database()
     .from("connect_plate_setups")
-    .select("*")
+    .select("id,user_id,slug,business_display_name,website,facebook,instagram,google_review_link,phone,featured_message,logo_url")
     .eq("slug", slug)
     .single();
 
@@ -22,7 +22,7 @@ export default async function BusinessPage({
     );
   }
 
-  await supabase.from("connect_plate_scans").insert([
+  await database().from("connect_plate_scans").insert([
     {
       plate_id: business.id,
       user_id: business.user_id,
@@ -58,7 +58,7 @@ export default async function BusinessPage({
             <LinkTracker
               href={normalizeUrl(business.website)}
               linkType="website"
-              business={business}
+              business={{ id: business.id, slug: business.slug }}
             >
               Visit Website
             </LinkTracker>
@@ -68,7 +68,7 @@ export default async function BusinessPage({
             <LinkTracker
               href={normalizeUrl(business.facebook)}
               linkType="facebook"
-              business={business}
+              business={{ id: business.id, slug: business.slug }}
             >
               Facebook
             </LinkTracker>
@@ -78,7 +78,7 @@ export default async function BusinessPage({
             <LinkTracker
               href={normalizeUrl(business.instagram)}
               linkType="instagram"
-              business={business}
+              business={{ id: business.id, slug: business.slug }}
             >
               Instagram
             </LinkTracker>
@@ -88,7 +88,7 @@ export default async function BusinessPage({
             <LinkTracker
               href={normalizeUrl(business.google_review_link)}
               linkType="google_review"
-              business={business}
+              business={{ id: business.id, slug: business.slug }}
             >
               Leave A Review
             </LinkTracker>
@@ -98,7 +98,7 @@ export default async function BusinessPage({
             <LinkTracker
               href={`tel:${business.phone}`}
               linkType="phone"
-              business={business}
+              business={{ id: business.id, slug: business.slug }}
             >
               Call Business
             </LinkTracker>

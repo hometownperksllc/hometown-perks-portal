@@ -20,9 +20,12 @@ export default function EditConnectPlatePage() {
 
   useEffect(() => {
     async function loadData() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { window.location.assign('/login'); return; }
       const { data } = await supabase
         .from("connect_plate_setups")
         .select("*")
+        .eq('user_id', user.id)
         .order("created_at", { ascending: false })
         .limit(1);
 
@@ -39,10 +42,13 @@ export default function EditConnectPlatePage() {
   }, []);
 
   async function handleSave() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.assign('/login'); return; }
     const response = await fetch("/api/update-connect-plate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
       },
       body: JSON.stringify(form),
     });

@@ -30,7 +30,7 @@ if (!user) {
     let logoUrl = "";
 
 if (logoFile) {
-  const fileName = `${Date.now()}-${logoFile.name}`;
+  const fileName = `${user.id}/${crypto.randomUUID()}-${logoFile.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
 
   const { error: uploadError } = await supabase.storage
     .from("business-logos")
