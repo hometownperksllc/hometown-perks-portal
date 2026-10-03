@@ -1,40 +1,9 @@
-const plans = [
-  {
-    name: "Founding Community Partner",
-    price: "$149/mo",
-    description: "Consistent local visibility for small businesses.",
-    features: [
-      "Rotating TV screen advertising",
-      "Business directory listing",
-      "Merchant portal access",
-      "1 ad update per month",
-    ],
-  },
-  {
-    name: "Founding Growth Partner",
-    price: "$249/mo",
-    description: "More visibility plus Connect Plate customer engagement.",
-    features: [
-      "Increased ad rotation frequency",
-      "Connect Plate included",
-      "Custom mobile landing page",
-      "Priority ad updates",
-      "Quarterly social spotlight",
-    ],
-  },
-  {
-    name: "Founding Premier Partner",
-    price: "$349/mo",
-    description: "Maximum exposure for premium placement.",
-    features: [
-      "Highest ad rotation priority",
-      "Featured placement opportunities",
-      "Monthly promotional spotlight",
-      "Premium Connect Plate experience",
-      "Priority support",
-    ],
-  },
-];
+const plans = [{
+  name: "Founding Advertiser",
+  price: "$149/mo",
+  description: "Planned launch package. Billing starts when your ad goes live.",
+  features: ["Advertising across the initial participating locations", "Screen installations are not yet complete", "Ad details and service terms confirmed before commitment", "Connect Plate available as an optional add-on"],
+}];
 
 export default function Home() {
   return (
@@ -45,7 +14,7 @@ export default function Home() {
         <div style={navLinks}>
           <a href="#how" style={navLink}>How It Works</a>
           <a href="#plans" style={navLink}>Plans</a>
-          <a href="/signup" style={navButton}>Join</a>
+          <a href="/login" style={navButton}>Merchant Login</a>
         </div>
       </section>
 
@@ -58,18 +27,16 @@ export default function Home() {
           </h1>
 
           <p style={heroText}>
-            Hometown Perks combines TV screen advertising, business listings,
-            Connect Plate QR/NFC tools, and merchant portal access into one
-            simple visibility platform for local businesses.
+            Our local advertising network is preparing to launch. Five to six businesses have expressed interest in hosting screens; installations are not yet complete. Register your interest in advertising, with optional QR/NFC Connect Plate services.
           </p>
 
           <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
             <a href="#plans" style={primaryButton}>
-              View Founding Partner Plans
+              View Launch Offer
             </a>
 
-            <a href="/signup" style={secondaryButton}>
-              Become a Partner
+            <a href="https://www.hometownperksusa.com/merchant-signup" style={secondaryButton}>
+              Become a Founding Advertiser
             </a>
           </div>
         </div>
@@ -105,10 +72,10 @@ export default function Home() {
 
         <div style={stepsGrid}>
           {[
-            "Choose a partner plan",
+            "Register your interest",
             "Submit your business details",
             "Upload or request your ad",
-            "Get seen across the network",
+            "Go live when screens are ready",
           ].map((step, i) => (
             <div key={step} style={glassCard}>
               <p style={stepNumber}>Step {i + 1}</p>
@@ -119,8 +86,8 @@ export default function Home() {
       </section>
 
       <section id="plans" style={sectionStyle}>
-        <p style={eyebrow}>Founding Partner Plans</p>
-        <h2 style={sectionTitle}>Launch pricing for early partners.</h2>
+        <p style={eyebrow}>Founding Advertiser Launch Offer</p>
+        <h2 style={sectionTitle}>One planned package. $149 per month.</h2>
 
         <div style={plansGrid}>
           {plans.map((plan) => (
@@ -136,8 +103,8 @@ export default function Home() {
                 ))}
               </ul>
 
-              <a href="/signup" style={primaryButton}>
-                Become a Partner
+              <a href="https://www.hometownperksusa.com/merchant-signup" style={primaryButton}>
+                Become a Founding Advertiser
               </a>
             </div>
           ))}
@@ -157,19 +124,19 @@ export default function Home() {
         </div>
 
         <div style={priceBadge}>
-          <span>$49 activation</span>
-          <strong>+$10/mo standalone</strong>
+          <span>Optional add-on</span>
+          <strong>Ask about current pricing</strong>
         </div>
       </section>
 
       <section style={ctaSection}>
-        <h2 style={sectionTitle}>Ready to become a founding partner?</h2>
+        <h2 style={sectionTitle}>Ready to become a founding advertiser?</h2>
         <p style={mutedText}>
-          Join early and help shape the local visibility network in your area.
+          No payment or subscription is required to register interest. We will confirm your package before your ad goes live.
         </p>
 
-        <a href="/signup" style={primaryButton}>
-          Start Merchant Signup
+        <a href="https://www.hometownperksusa.com/merchant-signup" style={primaryButton}>
+          Register Your Interest
         </a>
       </section>
     </main>
