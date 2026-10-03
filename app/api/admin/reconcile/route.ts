@@ -1,4 +1,5 @@
 import {adminFor,database,square,squareEnvironment} from '@/lib/billing/server';
+import {stopRefundedEnrollment} from '@/lib/billing/refund-state';
 import {synchronizeInvoice,synchronizeSubscription} from '@/lib/billing/synchronize';
 export async function POST(request:Request){
  try{
@@ -14,6 +15,7 @@ export async function POST(request:Request){
     const {payment:p}=await client.payments.get({paymentId:tender.paymentId});
     if(!p?.id || p.orderId!==e.square_order_id || p.locationId!==locationId || p.amountMoney?.currency!=='USD' || p.amountMoney.amount!==BigInt(14900) || !p.updatedAt)continue;
     const result=await db.rpc('record_merchant_payment',{p_payment_id:p.id,p_order_id:p.orderId,p_environment:environment,p_status:p.status,p_amount:Number(p.amountMoney.amount),p_refunded:Number(p.refundedMoney?.amount??0),p_updated:p.updatedAt});if(result.error)throw result.error;
+    if(Number(p.refundedMoney?.amount??0)>0)await stopRefundedEnrollment(client,db,e.square_order_id,environment);
    }
   }
   const b=await db.from('enrollment_billing').select('square_subscription_id').eq('enrollment_id',e.id).maybeSingle();if(b.error)throw b.error;

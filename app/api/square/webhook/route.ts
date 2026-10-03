@@ -1,5 +1,5 @@
 import {database,square,squareEnvironment} from '@/lib/billing/server';
-import {stopRenewal} from '@/lib/billing/cancellation';
+import {stopRefundedEnrollment} from '@/lib/billing/refund-state';
 import {synchronizeInvoice,synchronizeSubscription} from '@/lib/billing/synchronize';
 import {verifySignature} from '@/lib/billing/signature';
 export const runtime='nodejs';
@@ -36,15 +36,7 @@ export async function POST(request:Request) {
  if(error) throw error;
  if(Number(payment.refundedMoney?.amount??0)>0){
   stage='stop_refunded_enrollment_renewal';
-  const enrollment=await db.from('paid_enrollments').select('id').eq('square_order_id',payment.orderId).eq('square_environment',squareEnvironment()).maybeSingle();
-  if(enrollment.error)throw enrollment.error;
-  if(enrollment.data){
-   const b=await db.from('enrollment_billing').select('square_subscription_id').eq('enrollment_id',enrollment.data.id).maybeSingle();if(b.error)throw b.error;
-   if(b.data){
-    const recorded=await db.from('enrollment_billing').update({cancellation_requested_at:new Date().toISOString()}).eq('enrollment_id',enrollment.data.id);if(recorded.error)throw recorded.error;
-    if(b.data.square_subscription_id){const stopped=await stopRenewal(client,b.data.square_subscription_id);const saved=await db.from('enrollment_billing').update({cancellation_confirmed_at:new Date().toISOString(),square_subscription_status:stopped.status}).eq('enrollment_id',enrollment.data.id);if(saved.error)throw saved.error;}
-   }
-  }
+  await stopRefundedEnrollment(client,db,payment.orderId,squareEnvironment());
  }
  return Response.json({received:true});
  } catch(error) {
