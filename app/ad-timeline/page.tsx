@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { signedFiles } from "@/lib/ad-files";
 
 const timelineSteps = [
   "Request Submitted",
@@ -39,7 +40,7 @@ export default function AdTimelinePage() {
         console.error(error);
         setMessage("Could not load ad requests.");
       } else {
-        setRequests(data || []);
+        setRequests(await signedFiles(data || []));
       }
 
       setLoading(false);
@@ -53,7 +54,6 @@ export default function AdTimelinePage() {
       .from("ad_requests")
       .update({
         merchant_approval_status: "Approved",
-        status: "Approved",
         approved_at: new Date().toISOString(),
       })
       .eq("id", id);
@@ -84,7 +84,6 @@ export default function AdTimelinePage() {
       .update({
         merchant_approval_status: "Changes Requested",
         merchant_feedback: feedback,
-        status: "Changes Requested",
       })
       .eq("id", id);
 

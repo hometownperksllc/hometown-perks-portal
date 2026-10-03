@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
+
 
 export default function LinkTracker({
   href,
@@ -10,18 +10,14 @@ export default function LinkTracker({
 }: {
   href: string;
   linkType: string;
-  business: any;
+  business: { id: string; slug: string };
   children: React.ReactNode;
 }) {
   async function trackClick() {
-    await supabase.from("connect_plate_link_clicks").insert([
-      {
-        plate_id: business.id,
-        user_id: business.user_id,
-        slug: business.slug,
-        link_type: linkType,
-      },
-    ]);
+    await fetch('/api/connect-plate/track', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: business.slug, linkType }), keepalive: true,
+    });
   }
 
   return (

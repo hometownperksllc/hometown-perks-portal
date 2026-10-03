@@ -34,3 +34,10 @@ export function billingOrigin() {
  if(!origin || !/^https:\/\//.test(origin)) throw new Error('Portal origin is not configured');
  return new URL(origin).origin;
 }
+
+export async function adminFor(request:Request) {
+ const user=await userFor(request);
+ if(!user) return null;
+ const {data,error}=await database().from('portal_admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
+ return error || !data ? null : user;
+}

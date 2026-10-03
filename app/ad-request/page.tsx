@@ -26,7 +26,7 @@ export default function AdRequestPage() {
       const { data } = await supabase
         .from("merchants")
         .select("business_name")
-        .eq("email", session.user.email)
+        .eq("user_id", session.user.id)
         .single();
 
       if (data?.business_name) {
@@ -57,24 +57,23 @@ export default function AdRequestPage() {
 
     if (files && files.length > 0) {
       for (const file of Array.from(files)) {
-        const fileName = `${Date.now()}-${file.name}`;
+        const fileName = `${session.user.id}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
 
         const { error: uploadError } = await supabase.storage
-          .from("ad-uploads")
+          .from("ad-request-files")
           .upload(fileName, file);
 
-        if (!uploadError) {
-          uploadedFiles.push(fileName);
-        }
+        if (uploadError) { setStatus('Unable to upload your file. Use a JPG, PNG, WebP or PDF under 10 MB.'); setLoading(false); return; }
+        uploadedFiles.push(fileName);
       }
     }
 
     const { error } = await supabase.from("ad_requests").insert([
       {
         business_name: businessName,
-        notes: notes,
-        email: session.user.email,
-        status: "Submitted",
+        user_id: session.user.id,
+        promotion_details: notes,
+        request_month: new Date().toISOString().slice(0, 7),
         uploaded_files: uploadedFiles,
       },
     ]);
