@@ -37,6 +37,8 @@ export default function LoginPage() {
           <button type="submit" style={buttonStyle}>Log In</button>
         </form>
 
+        <a href="/forgot-password" style={{ display: "block", marginTop: "20px", color: "#38bdf8" }}>Set up or reset your password</a>
+
         <a href="/signup" style={{ display: "block", marginTop: "20px", textAlign: "center", color: "#38bdf8", fontWeight: "bold", textDecoration: "none" }}>
           Create Merchant Account
         </a>
