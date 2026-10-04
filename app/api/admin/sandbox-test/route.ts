@@ -2,11 +2,21 @@ import {adminFor,database} from '@/lib/billing/server';
 import {sandboxClient} from '@/lib/billing/sandbox';
 import {firstRenewalDate,localDate} from '@/lib/billing/recurring';
 import {stopRenewal} from '@/lib/billing/cancellation';
+import {readSandboxStatus} from '@/lib/billing/sandbox-status';
 export const maxDuration=60;
 export async function GET(request:Request){
  try{if(!await adminFor(request))return Response.json({error:'Owner access required.'},{status:403});
- const {data,error}=await database().from('square_sandbox_runs').select('id,live_date,renewal_start_date,payment_status,refund_status,subscription_status,stage,webhook_payment_seen_at,webhook_refund_seen_at,last_error_code').order('created_at',{ascending:false}).limit(10);
- if(error)throw error;return Response.json({configured:!!process.env.SQUARE_SANDBOX_ACCESS_TOKEN&&!!process.env.SQUARE_SANDBOX_LOCATION_ID,runs:data});
+ const {data,error}=await database().from('square_sandbox_runs').select('id,live_date,renewal_start_date,payment_status,refund_status,subscription_status,stage,webhook_payment_seen_at,webhook_refund_seen_at,last_error_code,square_payment_id,square_subscription_id').order('created_at',{ascending:false}).limit(10);
+ if(error)throw error;
+ const configured=!!process.env.SQUARE_SANDBOX_ACCESS_TOKEN&&!!process.env.SQUARE_SANDBOX_LOCATION_ID;
+ const client=configured?sandboxClient():null;
+ const runs=await Promise.all((data??[]).map(async row=>{
+  const {square_payment_id,square_subscription_id,...saved}=row;
+  if(!client)return saved;
+  try{return {...saved,...await readSandboxStatus(client,{paymentId:square_payment_id,subscriptionId:square_subscription_id},process.env.SQUARE_SANDBOX_LOCATION_ID!)};}
+  catch{return {...saved,provider_check_error:true};}
+ }));
+ return Response.json({configured,runs},{headers:{'Cache-Control':'no-store'}});
  }catch{return Response.json({error:'Sandbox test status unavailable.'},{status:503});}
 }
 export async function POST(request:Request){
