@@ -1,7 +1,7 @@
 const plans = [{
   name: "Founding Advertiser",
   price: "$149/mo",
-  description: "Planned launch package. Billing starts when your ad goes live.",
+  description: "When paid enrollment opens, $149 is paid upfront for your first 30 calendar days. Your service period starts when your approved ad goes live. Later $149 monthly renewals require separate authorization.",
   features: ["Advertising across the initial participating locations", "Screen installations are not yet complete", "Ad details and service terms confirmed before commitment", "Connect Plate available as an optional add-on"],
 }];
 
