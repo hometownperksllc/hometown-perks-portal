@@ -3,7 +3,7 @@ import {useEffect,useState} from 'react';
 import Link from 'next/link';
 import {supabase} from '@/lib/supabase';
 type Overview={businessName:string|null;enrollmentStatus:string|null;isOwner:boolean;counts:{requests:number;approved:number;running:number;views:number;website:number;facebook:number;instagram:number;reviews:number;phone:number}};
-const tools=[['Submit ad request','/ad-request'],['Review ad timeline','/ad-timeline'],['Set up Connect Plate','/connect-plate'],['Edit Connect Plate','/edit-connect-plate'],['View analytics','/analytics'],['Manage billing','/billing']];
+const tools=[['Submit ad request','/ad-request'],['Review ad timeline','/ad-timeline'],['Set up Connect Plate','/connect-plate'],['Edit Connect Plate','/edit-connect-plate'],['View analytics','/analytics'],['Manage billing','/billing'],['Agreements & Documents','/documents']];
 export default function AccountOverview({analytics=false}:{analytics?:boolean}){
  const [data,setData]=useState<Overview|null>(null),[message,setMessage]=useState('Loading your account…'),[attempt,setAttempt]=useState(0);
  useEffect(()=>{
