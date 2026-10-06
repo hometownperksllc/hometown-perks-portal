@@ -30,12 +30,20 @@ if (!user) {
     let logoUrl = "";
 
 if (logoFile) {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(logoFile.type) || !logoFile.size || logoFile.size > 5 * 1024 * 1024) {
+    alert("Choose a JPG, PNG or WebP logo no larger than 5 MB.");
+    return;
+  }
   const fileName = `${user.id}/${crypto.randomUUID()}-${logoFile.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
 
   const { error: uploadError } = await supabase.storage
     .from("business-logos")
     .upload(fileName, logoFile);
 
+  if (uploadError) {
+    alert("The logo could not be uploaded. Choose a JPG, PNG or WebP file no larger than 5 MB, then try again.");
+    return;
+  }
   if (!uploadError) {
     const { data } = supabase.storage
       .from("business-logos")
@@ -54,10 +62,11 @@ const slug = form.business_name
 
 const existing = await supabase
   .from("connect_plate_setups")
-  .select("id")
+  .select("id,logo_url")
   .eq("user_id", user.id)
   .limit(1);
 
+if (existing.error) { alert("Your existing setup could not be checked. Please try again."); return; }
 let error = null;
 
 if (existing.data && existing.data.length > 0) {
@@ -72,7 +81,7 @@ if (existing.data && existing.data.length > 0) {
       google_review_link: form.google_review_link,
       phone: form.phone,
       featured_message: form.featured_message,
-      logo_url: logoUrl,
+      logo_url: logoUrl || existing.data[0].logo_url || null,
     })
     .eq("user_id", user.id);
 
@@ -244,7 +253,7 @@ if (existing.data && existing.data.length > 0) {
         />
         <input
   type="file"
-  accept="image/*"
+  accept="image/jpeg,image/png,image/webp"
   onChange={(e) =>
     setLogoFile(e.target.files?.[0] || null)
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -37,7 +37,7 @@ export default function AdRequestPage() {
     loadMerchant();
   }, []);
 
-  async function submitRequest(e: any) {
+  async function submitRequest(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setLoading(true);
@@ -53,7 +53,7 @@ export default function AdRequestPage() {
       return;
     }
 
-    let uploadedFiles: string[] = [];
+    const uploadedFiles: string[] = [];
 
     if (files && files.length > 0) {
       for (const file of Array.from(files)) {
@@ -170,7 +170,7 @@ export default function AdRequestPage() {
           </div>
 
 <div>
-  <label style={labelStyle}>Upload Images or Videos</label>
+  <label style={labelStyle}>Upload Images or PDFs</label>
 
   <label
     htmlFor="file-upload"
@@ -198,7 +198,7 @@ export default function AdRequestPage() {
     id="file-upload"
     type="file"
     multiple
-    accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4"
+    accept=".jpg,.jpeg,.png,.webp,.pdf"
 onChange={(e) => {
   const selectedFiles = e.target.files;
 
@@ -207,17 +207,16 @@ onChange={(e) => {
   const allowedTypes = [
     "image/jpeg",
     "image/png",
-    "image/gif",
-    "image/bmp",
-    "video/mp4",
+    "image/webp",
+    "application/pdf",
   ];
 
   const validFiles = Array.from(selectedFiles).filter((file) =>
-    allowedTypes.includes(file.type)
+    allowedTypes.includes(file.type) && file.size > 0 && file.size <= 10 * 1024 * 1024
   );
 
   if (validFiles.length !== selectedFiles.length) {
-    alert("Only JPG, PNG, GIF, BMP images and MP4 videos are allowed.");
+    alert("Choose JPG, PNG, WebP or PDF files, each no larger than 10 MB.");
   }
 
   const dataTransfer = new DataTransfer();
@@ -273,7 +272,7 @@ onChange={(e) => {
       lineHeight: 1.5,
     }}
   >
-    Supported files: JPG, PNG, GIF, BMP images and MP4 videos.
+    Supported files: JPG, PNG, WebP and PDF, up to 10 MB per file.
     Multiple uploads are allowed.
   </p>
 </div>
